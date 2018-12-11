@@ -1,0 +1,4 @@
+telebot
+pydub
+pyTelegramBotAPI
+requests
