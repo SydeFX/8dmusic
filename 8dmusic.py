@@ -1,5 +1,6 @@
 import time
 import sys
+import os
 
 import requests
 import telebot
@@ -10,30 +11,48 @@ TOKEN = '742161680:AAEKsvHNB3LKZjvqmKQe4hx7MFdAfwmJHLI'
 bot = telebot.TeleBot(TOKEN)
 
 
+def lang(message):
+    if (message.from_user.language_code is not None and
+            'ru' in message.from_user.language_code):
+        return 'ru'
+    return 'en'
+
+
+string = {
+    'ru': {'start': 'С помощью этого бота вы сможете сконвертировать песню на 8D'},
+    'en': {'start': 'By using this bot you can convert your music to 8D'}
+}
+
+
 @bot.message_handler(commands=['start'])
 def message_start(message):
     bot.send_chat_action(message.chat.id, 'typing')
-    bot.send_message(message.chat.id, 'convert 8d')
+    bot.send_message(message.chat.id, string[lang(message)]['start'])
 
 
 @bot.message_handler(content_types=['audio'])
 def message_audio(message):
-    performer = message.audio.performer
+    performer = message.audio.performer + ' 8D'
     title = message.audio.title
-    song_name = '{0} - {1}'.format(performer, title)
 
-    file_info = message.audio.file_id
+    file_id = message.audio.file_id
 
     # convert voice messgae to mp3 file
-    mediafile_url = 'https://api.telegram.org/file/bot{0}/{1}'.format(TOKEN, file_info.file_path)
+    mediafile_info = bot.get_file(file_id)
+    mediafile_url = 'https://api.telegram.org/file/bot{0}/{1}'.format(TOKEN, mediafile_info.file_path)
     media_file_video = requests.get(mediafile_url)
 
-    media_filepath = 'music/{0}.mp3'.format(song_name).encode('utf-8').strip()
+    media_filepath = '{0}.mp3'.format(message.from_user.id)
     with open(media_filepath, 'wb') as media_filehandler:
-        saved_music = media_filehandler.write(media_file_video.content)
-        converted_music = convert_music(saved_music)
+        media_filehandler.write(media_file_video.content)
 
-    bot.send_audio(message.chat.id, open(converted_music, 'wb'))
+    converted_music = convert_music(media_filepath)
+
+    bot.send_chat_action(message.chat.id, 'record_audio')
+    bot.send_audio(message.chat.id, open('music_converted/{0}.mp3'.format(message.from_user.id), 'rb'),
+                   performer=performer, title=title)
+
+    os.remove(converted_music)
 
 
 def main_loop():
