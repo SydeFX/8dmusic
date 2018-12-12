@@ -1,6 +1,7 @@
 from pydub import AudioSegment
 from math import *
 import os
+from multiprocessing import Pool
 
 
 def calc_pan(index):
@@ -30,11 +31,30 @@ def convert_music(directory):
     if song_start_point < len(song):
         splitted_song.append(song[song_start_point:])
 
+    # from multiprocessing import Pool
+    #
+    # def f(x):
+    #     return x * x
+    #
+    pool = Pool(5)
+
     ambisonics_song = splitted_song.pop(0)
     pan_index = 0
-    for piece in splitted_song:
+
+    def s(pan_index):
+        return piece.pan(calc_pan(pan_index))
+
+    pooled_list = []
+    pooled_results = []
+    for i, piece in enumerate(splitted_song):
         pan_index += 5
-        piece = piece.pan(calc_pan(pan_index))
+        async_piece = pool.apply_async(s, pan_index, callback=pooled_list.append)
+        pooled_results.append(async_piece)
+
+    import time
+    time.sleep(15)
+
+    for piece in pooled_list:
         ambisonics_song = ambisonics_song.append(piece, crossfade=interval / 50)
 
     # lets save it!
@@ -42,9 +62,9 @@ def convert_music(directory):
     with open(converted_directory, 'wb') as out_f:
         ambisonics_song.export(out_f, format='mp3')
 
-    os.remove(directory)
+    # os.remove(directory)
 
     return converted_directory
 
 
-# convert_music('713731388.mp3')
+convert_music('Lovely.mp3')
