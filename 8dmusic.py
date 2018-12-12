@@ -19,8 +19,10 @@ def lang(message):
 
 
 string = {
-    'ru': {'start': 'С помощью этого бота вы сможете сконвертировать песню на 8D'},
-    'en': {'start': 'By using this bot you can convert your music to 8D'}
+    'ru': {'start': 'С помощью этого бота вы сможете сконвертировать песню на 8D',
+           'wait': 'Please wait, your music is converting'},
+    'en': {'start': 'By using this bot you can convert your music to 8D',
+           'wait': 'Пожалуйста, подождите, ваша музыка конвертируется'}
 }
 
 
@@ -32,6 +34,7 @@ def message_start(message):
 
 @bot.message_handler(content_types=['audio'])
 def message_audio(message):
+    waiting = bot.send_message(message.chat.id, string[lang(message)]['wait'])
     performer = message.audio.performer + ' 8D'
     title = message.audio.title
 
@@ -52,7 +55,9 @@ def message_audio(message):
     bot.send_audio(message.chat.id, open('music_converted/{0}.mp3'.format(message.from_user.id), 'rb'),
                    performer=performer, title=title)
 
-    os.remove(converted_music)
+    bot.delete_message(message.chat.id, waiting.message_id)
+
+    os.remove(str(converted_music))
 
 
 def main_loop():

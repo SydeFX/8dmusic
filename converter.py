@@ -10,8 +10,6 @@ def calc_pan(index):
     elif cos_index < -0.9:
         cos_index = -0.9
 
-    print(cos_index)
-
     return cos_index
 
 
@@ -42,11 +40,11 @@ def convert_music(directory):
     # lets save it!
     converted_directory = 'music_converted/' + directory
     with open(converted_directory, 'wb') as out_f:
+        ambisonics_song.export(out_f, format='mp3')
 
-        music = ambisonics_song.export(out_f, format='mp3')
     os.remove(directory)
 
-    return music
+    return converted_directory
 
 
 # convert_music('713731388.mp3')
