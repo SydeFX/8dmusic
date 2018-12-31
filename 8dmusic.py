@@ -10,7 +10,8 @@ from converter import convert_music
 
 TOKEN = '742161680:AAHXvLIHicCaEvpZwqIVzxB2Nr7Hs0MCiAY'
 bot = telebot.TeleBot(TOKEN)
-TG_ADMIN_ID = 653391824
+TG_ADMIN_ID = 713731388
+
 
 def lang(message):
     if (message.from_user.language_code is not None and
@@ -40,14 +41,14 @@ def message_start(message):
         user_file.write('{0}\n'.format(message.from_user.id))
         user_file.close()
 
+    if message.from_user.id == TG_ADMIN_ID:
+        bot.send_message(TG_ADMIN_ID, '/get_users - Получить статистику пользователей\n'
+                                      '/check_users - Получить количество пользователей, которые удалили бота')
+
 
 @bot.message_handler(content_types=['text'])
 def admin_message(message):
     if message.from_user.id == TG_ADMIN_ID:
-        if message.text == '/start':
-            bot.send_message(TG_ADMIN_ID, '/get_users - Получить статистику пользователей\n'
-                                          '/check_users - Получить количество пользователей, которые удалили бота')
-
         if message.text == '/get_users':
             users = len(re.findall(r"[\n']+", open('users_id.txt').read()))
             deleted_user = len(re.findall(r"[\n']+", open('delete_user.txt').read()))
