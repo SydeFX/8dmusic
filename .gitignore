@@ -120,3 +120,6 @@ dmypy.json
 *.idea
 *.xml
 .DS_Store
+users_id.txt
+delete_user.txt
+
