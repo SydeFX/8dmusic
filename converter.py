@@ -1,5 +1,6 @@
 from pydub import AudioSegment
 from math import *
+import os
 
 
 def calc_pan(index):
@@ -9,13 +10,10 @@ def calc_pan(index):
     elif cos_index < -0.9:
         cos_index = -0.9
 
-    print(cos_index)
-
     return cos_index
 
 
 def convert_music(directory):
-
     interval = 0.2 * 1000  # sec
     song = AudioSegment.from_mp3(directory)
     song_inverted = song.invert_phase()
@@ -43,8 +41,10 @@ def convert_music(directory):
     converted_directory = 'music_converted/' + directory
     out_f = open(converted_directory, 'wb')
 
-    music = ambisonics_song.export(out_f, format='mp3')
-    return music
+    ambisonics_song.export(out_f, format='mp3')
+    os.remove(directory)
+
+    return converted_directory
 
 
 # convert_music('Lovely.mp3')
