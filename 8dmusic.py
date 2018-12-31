@@ -25,9 +25,9 @@ def lang(message):
 
 string = {
     'ru': {'start': 'С помощью этого бота вы сможете сконвертировать песню на 8D',
-           'wait': 'Please wait, your music is converting'},
+           'wait': 'Please wait, your music is converting. It may take about 1 minute'},
     'en': {'start': 'By using this bot you can convert your music to 8D',
-           'wait': 'Пожалуйста, подождите, ваша музыка конвертируется'}
+           'wait': 'Пожалуйста, подождите, ваша музыка конвертируется. Это может занять около 1 минуты'}
 }
 
 
