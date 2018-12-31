@@ -7,7 +7,7 @@ import telebot
 
 from converter import convert_music
 
-TOKEN = '742161680:AAEKsvHNB3LKZjvqmKQe4hx7MFdAfwmJHLI'
+TOKEN = '742161680:AAHXvLIHicCaEvpZwqIVzxB2Nr7Hs0MCiAY'
 bot = telebot.TeleBot(TOKEN)
 
 
