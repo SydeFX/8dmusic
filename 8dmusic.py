@@ -1,3 +1,4 @@
+import re
 import time
 import sys
 import os
@@ -9,7 +10,7 @@ from converter import convert_music
 
 TOKEN = '742161680:AAHXvLIHicCaEvpZwqIVzxB2Nr7Hs0MCiAY'
 bot = telebot.TeleBot(TOKEN)
-
+TG_ADMIN_ID = 653391824
 
 def lang(message):
     if (message.from_user.language_code is not None and
@@ -30,6 +31,41 @@ string = {
 def message_start(message):
     bot.send_chat_action(message.chat.id, 'typing')
     bot.send_message(message.chat.id, string[lang(message)]['start'])
+
+    user_message = '{0}'.format(message.from_user.id)
+    if user_message in open('users_id.txt').read():
+        pass
+    else:
+        user_file = open('users_id.txt', 'a')
+        user_file.write('{0}\n'.format(message.from_user.id))
+        user_file.close()
+
+
+@bot.message_handler(content_types=['text'])
+def admin_message(message):
+    if message.from_user.id == TG_ADMIN_ID:
+        if message.text == '/start':
+            bot.send_message(TG_ADMIN_ID, '/get_users - Получить статистику пользователей\n'
+                                          '/check_users - Получить количество пользователей, которые удалили бота')
+
+        if message.text == '/get_users':
+            users = len(re.findall(r"[\n']+", open('users_id.txt').read()))
+            deleted_user = len(re.findall(r"[\n']+", open('delete_user.txt').read()))
+            bot.send_message(TG_ADMIN_ID, 'Всего пользователей: {0}\nЗаблокировали бота: {1}'
+                             .format(users + 1, deleted_user))
+
+        if message.text == '/check_users':
+            users_id = open('users_id.txt')
+            i = 0
+            for user_id in users_id.read().split('\n'):
+                try:
+                    bot.send_chat_action(user_id, 'typing')
+                except Exception:
+                    i = i + 1
+                    delete_user = open('delete_user.txt', 'a')
+                    delete_user.write('{0}\n'.format(user_id))
+
+            bot.send_message(TG_ADMIN_ID, 'Удалили всего: {} пользователей'.format(i))
 
 
 @bot.message_handler(content_types=['audio'])
