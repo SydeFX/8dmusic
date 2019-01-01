@@ -27,12 +27,12 @@ def lang(message):
 
 
 string = {
-    'ru': {'start': 'С помощью этого бота вы сможете сконвертировать песню на 8D',
+    'ru': {'start': 'By using this bot you can convert your music to 8D',
            'wait': 'Please wait, your music is converting. It may take about 1 minute',
            'ref': 'For using this bot, please invite 1 friend by this link 👇',
            'count': 'Total invited: {}',
            'link': 'Your referal link👇\n'},
-    'en': {'start': 'By using this bot you can convert your music to 8D',
+    'en': {'start': 'С помощью этого бота вы сможете сконвертировать песню на 8D',
            'wait': 'Пожалуйста, подождите, ваша музыка конвертируется. Это может занять около 1 минуты',
            'ref': 'Для использования этого бота, пригластите одного друга, отправив эту ссылку 👇',
            'count': 'Всего приглашено: {}',
