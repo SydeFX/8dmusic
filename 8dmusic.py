@@ -44,7 +44,8 @@ string = {
 def get_my_ref(message):
     # получаем username нашего бота и отпрявляем ссылку
     bot_name = bot.get_me().username
-    bot.send_message(message.chat.id, string[lang(message)]['link'] + ref_link.format(bot_name, message.chat.id))
+    bot.send_message(message.chat.id, string[lang(message)]['link'] + ref_link.format(bot_name, message.chat.id),
+                     disable_web_page_preview=True)
 
 
 @bot.message_handler(commands=['ref_count'])
@@ -137,7 +138,8 @@ def message_audio(message):
         os.remove(str(converted_music))
     else:
         bot_name = bot.get_me().username
-        bot.reply_to(message, text=string[lang(message)]['ref']+'\n'+ref_link.format(bot_name, message.chat.id))
+        bot.send_message(message.chat.id, string[lang(message)]['ref']+'\n'+ref_link.format(bot_name, message.chat.id),
+                         disable_web_page_preview=True)
 
 
 def main_loop():
