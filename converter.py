@@ -33,7 +33,7 @@ def convert_music(directory):
     ambisonics_song = splitted_song.pop(0)
     pan_index = 0
     for piece in splitted_song:
-        pan_index += 25
+        pan_index += 5
         piece = piece.pan(calc_pan(pan_index))
         ambisonics_song = ambisonics_song.append(piece, crossfade=interval / 50)
 
