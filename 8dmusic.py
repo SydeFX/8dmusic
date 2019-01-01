@@ -6,6 +6,7 @@ import os
 import requests
 import telebot
 
+from models import *
 from converter import convert_music
 
 import sentry_sdk
@@ -14,6 +15,8 @@ sentry_sdk.init("https://d370e00b0de240b3be67867f140351d8@sentry.io/1307044")
 TOKEN = '742161680:AAHXvLIHicCaEvpZwqIVzxB2Nr7Hs0MCiAY'
 bot = telebot.TeleBot(TOKEN)
 TG_ADMIN_ID = 713731388
+
+ref_link = 'https://telegram.me/{}?start={}'
 
 
 def lang(message):
@@ -25,15 +28,47 @@ def lang(message):
 
 string = {
     'ru': {'start': 'С помощью этого бота вы сможете сконвертировать песню на 8D',
-           'wait': 'Please wait, your music is converting. It may take about 1 minute'},
+           'wait': 'Please wait, your music is converting. It may take about 1 minute',
+           'ref': 'For using this bot, please invite 1 friend by this link 👇',
+           'count': 'Total invited: {}',
+           'link': 'Your referal link👇\n'},
     'en': {'start': 'By using this bot you can convert your music to 8D',
-           'wait': 'Пожалуйста, подождите, ваша музыка конвертируется. Это может занять около 1 минуты'}
+           'wait': 'Пожалуйста, подождите, ваша музыка конвертируется. Это может занять около 1 минуты',
+           'ref': 'Для использования этого бота, пригластите одного друга, отправив эту ссылку 👇',
+           'count': 'Всего приглашено: {}',
+           'link': 'Ваша реферальная ссылка👇\n'}
 }
+
+
+@bot.message_handler(commands=['get_my_link'])
+def get_my_ref(message):
+    # получаем username нашего бота и отпрявляем ссылку
+    bot_name = bot.get_me().username
+    bot.send_message(message.chat.id, string[lang(message)]['link'] + ref_link.format(bot_name, message.chat.id))
+
+
+@bot.message_handler(commands=['ref_count'])
+def get_ref_count(message):
+    # запрашиваем кол-во рефералов пользователя и отправляем ему
+    count = Users.get_ref_count(message.chat.id)
+    bot.send_message(message.chat.id, string[lang(message)]['count'].format(count))
 
 
 @bot.message_handler(commands=['start'])
 def message_start(message):
     bot.send_chat_action(message.chat.id, 'typing')
+
+    user_id = message.chat.id
+    splited = message.text.split()
+    # проверяем наличие пользователя в базе данных
+    if not Users.user_exists(user_id):
+        # если его нет -- создаём
+        Users.create_user(user_id)
+        # проверяем перешел ли пользователь по реферальной ссылке
+        if len(splited) == 2:
+            # увеличиваем счетчик тому кто пригласил
+            Users.increase_ref_count(splited[1])
+
     bot.send_message(message.chat.id, string[lang(message)]['start'])
 
     user_message = '{0}'.format(message.from_user.id)
@@ -74,30 +109,35 @@ def admin_message(message):
 
 @bot.message_handler(content_types=['audio'])
 def message_audio(message):
-    waiting = bot.send_message(message.chat.id, string[lang(message)]['wait'])
-    performer = message.audio.performer + ' 8D'
-    title = message.audio.title
+    count = Users.get_ref_count(message.chat.id)
+    if count >= 1:
+        waiting = bot.send_message(message.chat.id, string[lang(message)]['wait'])
+        performer = message.audio.performer + ' 8D'
+        title = message.audio.title
 
-    file_id = message.audio.file_id
+        file_id = message.audio.file_id
 
-    # convert voice messgae to mp3 file
-    mediafile_info = bot.get_file(file_id)
-    mediafile_url = 'https://api.telegram.org/file/bot{0}/{1}'.format(TOKEN, mediafile_info.file_path)
-    media_file_video = requests.get(mediafile_url)
+        # convert voice messgae to mp3 file
+        mediafile_info = bot.get_file(file_id)
+        mediafile_url = 'https://api.telegram.org/file/bot{0}/{1}'.format(TOKEN, mediafile_info.file_path)
+        media_file_video = requests.get(mediafile_url)
 
-    media_filepath = '{0}.mp3'.format(message.from_user.id)
-    with open(media_filepath, 'wb') as media_filehandler:
-        media_filehandler.write(media_file_video.content)
+        media_filepath = '{0}.mp3'.format(message.from_user.id)
+        with open(media_filepath, 'wb') as media_filehandler:
+            media_filehandler.write(media_file_video.content)
 
-    converted_music = convert_music(media_filepath)
+        converted_music = convert_music(media_filepath)
 
-    bot.send_chat_action(message.chat.id, 'record_audio')
-    bot.send_audio(message.chat.id, open('music_converted/{0}.mp3'.format(message.from_user.id), 'rb'),
-                   performer=performer, title=title)
+        bot.send_chat_action(message.chat.id, 'record_audio')
+        bot.send_audio(message.chat.id, open('music_converted/{0}.mp3'.format(message.from_user.id), 'rb'),
+                       performer=performer, title=title)
 
-    bot.delete_message(message.chat.id, waiting.message_id)
+        bot.delete_message(message.chat.id, waiting.message_id)
 
-    os.remove(str(converted_music))
+        os.remove(str(converted_music))
+    else:
+        bot_name = bot.get_me().username
+        bot.reply_to(message, text=string[lang(message)]['ref']+'\n'+ref_link.format(bot_name, message.chat.id))
 
 
 def main_loop():
