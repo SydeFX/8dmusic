@@ -121,5 +121,4 @@ dmypy.json
 *.xml
 .DS_Store
 users_id.txt
-delete_user.txt
 users.db
