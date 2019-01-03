@@ -89,7 +89,7 @@ def message_start(message):
 @bot.message_handler(content_types=['text'])
 def admin(message):
     if message.from_user.id == TG_ADMIN_ID:
-        if message.text == 'user_delete':
+        if message.text == '/user_delete':
             users_id = open('users_id.txt')
             i = 0
             for user_id in users_id.read().split('\n'):
@@ -100,14 +100,14 @@ def admin(message):
                     delete_user = open('delete_user.txt', 'a')
                     delete_user.write('{0}.'.format(user_id))
 
-        elif message.text == 'count_users':
+        elif message.text == '/count_users':
             users = len(re.findall(r"[\n']+", open('users_id.txt').read()))
             deleted_user = len(open('delete_user.txt').read().split('.'))
 
             bot.send_message(TG_ADMIN_ID, 'Всего пользователей: {0}\nЗаблокировали бота: {1}'
                              .format(users, deleted_user))
 
-        elif message.text == 'delete_users_id':
+        elif message.text == '/delete_users_id':
             try:
                 deleted_user = len(open('delete_user.txt').read().split('.'))
                 i = 0
