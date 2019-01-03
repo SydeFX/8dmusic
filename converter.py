@@ -33,7 +33,7 @@ def convert_music(directory):
     ambisonics_song = splitted_song.pop(0)
     pan_index = 0
     for piece in splitted_song:
-        pan_index += 5
+        pan_index += 8
         piece = piece.pan(calc_pan(pan_index))
         ambisonics_song = ambisonics_song.append(piece, crossfade=interval / 50)
 
@@ -47,4 +47,4 @@ def convert_music(directory):
     return converted_directory
 
 
-# convert_music('Lovely.mp3')
+# convert_music()
