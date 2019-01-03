@@ -40,6 +40,44 @@ string = {
 }
 
 
+@bot.message_handler(commands=['user_delete'])
+def check_users(message):
+    if message.from_user.id == TG_ADMIN_ID:
+        users_id = open('users_id.txt')
+        i = 0
+        for user_id in users_id.read().split('\n'):
+            try:
+                bot.send_chat_action(user_id, 'typing')
+            except Exception:
+                i = i + 1
+                delete_user = open('delete_user.txt', 'a')
+                delete_user.write('{0}.'.format(user_id))
+
+
+@bot.message_handler(commands=['delete_users_id'])
+def delete_users_id(message):
+    if message.from_user.id == TG_ADMIN_ID:
+        try:
+            deleted_user = len(open('delete_user.txt').read().split('.'))
+            i = 0
+            for users in range(deleted_user - 1):
+                i = i + 1
+                users += open('delete_user.txt').read().split('.')[i]
+                bot.send_message(TG_ADMIN_ID, 'Список id пользователей, удаливших вашего бота:\n{}'.format(users))
+        except Exception:
+            bot.send_message(TG_ADMIN_ID, 'Никто не удалил вашего бота')
+        
+
+@bot.message_handler(commands=['count_users'])
+def get_users(message):
+    if message.from_user.id == TG_ADMIN_ID:
+        users = len(re.findall(r"[\n']+", open('users_id.txt').read()))
+        deleted_user = len(open('delete_user.txt').read().split('.'))
+
+        bot.send_message(TG_ADMIN_ID, 'Всего пользователей: {0}\nЗаблокировали бота: {1}'
+                         .format(users, deleted_user))
+
+
 @bot.message_handler(commands=['get_my_link'])
 def get_my_ref(message):
     # получаем username нашего бота и отпрявляем ссылку
@@ -82,30 +120,8 @@ def message_start(message):
 
     if message.from_user.id == TG_ADMIN_ID:
         bot.send_message(TG_ADMIN_ID, '/get_users - Получить статистику пользователей\n'
-                                      '/check_users - Получить количество пользователей, которые удалили бота')
-
-
-@bot.message_handler(content_types=['text'])
-def admin_message(message):
-    if message.from_user.id == TG_ADMIN_ID:
-        if message.text == '/get_users':
-            users = len(re.findall(r"[\n']+", open('users_id.txt').read()))
-            deleted_user = len(re.findall(r"[\n']+", open('delete_user.txt').read()))
-            bot.send_message(TG_ADMIN_ID, 'Всего пользователей: {0}\nЗаблокировали бота: {1}'
-                             .format(users + 1, deleted_user))
-
-        if message.text == '/check_users':
-            users_id = open('users_id.txt')
-            i = 0
-            for user_id in users_id.read().split('\n'):
-                try:
-                    bot.send_chat_action(user_id, 'typing')
-                except Exception:
-                    i = i + 1
-                    delete_user = open('delete_user.txt', 'a')
-                    delete_user.write('{0}.'.format(user_id))
-
-            bot.send_message(TG_ADMIN_ID, 'Удалили всего: {} пользователей'.format(i))
+                                      '/check_users - Получить количество пользователей, которые удалили бота\n'
+                                      '/delete_users_id - Получить список id пользователей, которые удалили бота')
 
 
 @bot.message_handler(content_types=['audio'])
