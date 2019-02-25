@@ -12,9 +12,9 @@ from converter import convert_music
 import sentry_sdk
 sentry_sdk.init("https://d370e00b0de240b3be67867f140351d8@sentry.io/1307044")
 
-TOKEN = '742161680:AAHXvLIHicCaEvpZwqIVzxB2Nr7Hs0MCiAY'
+TOKEN = '713672259:AAGoZMY6oJg8HoR8v925giocMe7W3nDRQe0'
 bot = telebot.TeleBot(TOKEN)
-TG_ADMIN_ID = 713731388
+TG_ADMIN_ID = 486259513
 
 ref_link = 'https://telegram.me/{}?start={}'
 
