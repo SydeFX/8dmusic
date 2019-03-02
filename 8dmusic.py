@@ -12,7 +12,7 @@ from converter import convert_music
 import sentry_sdk
 sentry_sdk.init("https://d370e00b0de240b3be67867f140351d8@sentry.io/1307044")
 
-TOKEN = '742161680:AAHXvLIHicCaEvpZwqIVzxB2Nr7Hs0MCiAY'
+TOKEN = '640619242:AAG7lD0H8xO0_3krqmJZuiFC69-68IW66Cw'
 bot = telebot.TeleBot(TOKEN)
 TG_ADMIN_ID = 713731388
 
